@@ -1,0 +1,62 @@
+1. What should be the output of the following Script?
+   v <- c( 2,5.5,6)
+   t <- c(8, 3, 4)
+   print(v%/%t)
+Ans: [1] 0 1 1
+
+2. You have 25 excel files with names as xx_1.xlsx, xx_2.xlsx,........xx_25.xlsx in a dir.
+Write a program to extract the contents of each excel sheet and make it one df.
+
+  In a first step, we have to load the following packages:
+
+   1 library(rJava)
+   2 library(XLConnect, pos = 4)
+
+  In a second step, we define the file type, we want to import (.xls), save the sheet names of the Excel files into a new vector called sheet.
+names (since the sheet names in each of the files are identical, we may extract them from any of the 10 files) and create another 
+vector (e.names) containing the names for the variables we want to import (in this case 28).
+
+   1  file.names <- list.files(pattern='*.xls')
+   2  sheet.names <- getSheets(loadWorkbook('Name.xls'))
+   3  e.names <- paste0(rep('v', 28), c(1:28))
+
+ In a thirt step, we create a data frame with 28 variables, named
+v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28
+and one row containing NAs only.
+
+   1  data.1 <- data.frame(matrix(rep(NA,length(e.names)),
+   2                         ncol = length(e.names)))
+   3  names(data.1) <- e.names
+ 
+ Finally, we use 2 for-loops to import all the files and sheets and bind them to a data frame we can use for analysis.
+
+
+
+   1  for (i in 1:length(file.names)) {
+   2   wb <- loadWorkbook(file.names[i])
+   3   for (j in 1:length(sheet.names)) {
+   4    ss <- readWorksheet(wb, sheet.names[j], startCol = 2, header = TRUE)
+   5    condition <- rep(sheet.names[j], nrow(ss))
+   6  sub.id <- rep(file.names[i], nrow(ss))
+   7      s.frame <- seq(1:nrow(ss))
+   8        df.1 <- data.frame(sub.id, condition, s.frame, ss)
+   9       names(df.1) <- e.names
+  10      data.1 <- rbind(data.1, df.1)
+  11       rm(ss, condition, s.frame, sub.id, df.1)
+  12   }
+  13      rm(wb)
+   14 }
+
+3. If the above 25 files were csv files, what would be your script to read?
+    Comma separated files (.csv) are much easier to work with. It’s best to save these files as csv before reading them into R. 
+    If you need to read in a csv with R the best way to do it is with the command read.csv. 
+   Here is an example of how to read CSV in R:
+    # Read CSV into R
+   MyData <- read.csv(file="c:/TheDataIWantToReadIn.csv", header=TRUE, sep=",")
+   The above reads the file TheDataIWantToReadIn.csv into a data frame that it creates called MyData.
+   header=TRUE specifies that this data includes a header row and sep=”,” specifies that the data is separated by commas 
+  (though read.csv implies the same I think it’s safer to be explicit).
+
+   Note that the above includes the file path (the c:/). If you’ve already set a working directory in R you can just list the file, like this:
+   # Read CSV into R
+   MyData <- read.csv(file="TheDataIWantToReadIn.csv", header=TRUE, sep=",")
